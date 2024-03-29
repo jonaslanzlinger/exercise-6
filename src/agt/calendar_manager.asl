@@ -19,7 +19,24 @@ td("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#CalendarServic
 */
 @start_plan
 +!start : td("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#CalendarService", Url) <-
-    .print("Hello world").
+    .print("Hello world");
+    makeArtifact("calendarService", "org.hyperagents.jacamo.artifacts.wot.ThingArtifact", [Url], ArtId);
+    .wait(5000);
+    !read_upcoming_event.
 
+@read_upcoming_event_plan
++!read_upcoming_event : true <-
+    readProperty("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#ReadUpcomingEvent",  UpcomingEventList);
+    .nth(0, UpcomingEventList, UpcomingEvent);
+    .print("Upcoming event: ", UpcomingEvent);
+    .send(personal_assistant, tell, upcomingEvent(UpcomingEvent));
+    .wait(5000);
+    !read_upcoming_event.
+
+@cfp_increase_illuminance_refuse_plan
++cfp("increase_illuminance")[source(Sender)] : true <-
+    .print("Calendar_manager can not help in increasing the illuminance.");
+    .send(Sender, tell, refuse("increase_illuminance")).
+    
 /* Import behavior of agents that work in CArtAgO environments */
 { include("$jacamoJar/templates/common-cartago.asl") }
