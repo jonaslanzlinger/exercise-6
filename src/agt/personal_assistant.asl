@@ -19,27 +19,21 @@ best_option(Number) :- Number = 0.
 +!sendDweet(Message) : true <-
     sendDweet(Message).
 
-// Catch a change in upcoming_event belief.
-// Act dependig on the owner_state belief.
-@upcoming_event_now_plan
-+upcoming_event("now") : true <-
-    if (owner_state("awake")) {
-        .print("Enjoy your event");
-    } elif (owner_state("asleep")) {
-        !start_wake_up_routine;
-    };
-    .print("Upcoming event is now - something went wrong").
+@upcoming_event_now_asleep_plan
++upcoming_event("now") : owner_state("asleep") <-
+    !start_wake_up_routine.
 
-// Catch a change in owner_state belief.
-// Act dependig on the upcoming_event belief.
-@owner_state_plan
-+owner_state(State) : upcoming_event("now") <-
-    if (State = "awake") {
-        .print("Enjoy your event");
-    } elif (State = "asleep") {
-        !start_wake_up_routine;
-    };
-    .print("Upcoming event is now - something went wrong").
+@upcoming_event_now_awake_plan
++upcoming_event("now") : owner_state("awake") <-
+    .print("Enjoy your event").
+
+@owner_state_awake_upcoming_event_now_plan
++owner_state("awake") : upcoming_event("now") <-
+    .print("Enjoy your event").
+
+@owner_state_asleep_upcoming_event_now_plan
++owner_state("asleep") : upcoming_event("now") <-
+    !start_wake_up_routine.
 
 // fipa contract net protocol.
 // Bidding phase.
@@ -74,9 +68,9 @@ best_option(Number) :- Number = 0.
 // If no proposals are received, send the goal of waking the user up to friends via Dweet.io.
 // If proposals are received, check which one is the best option,
 // and send an acceptProposal or rejectProposal to the sender.
-// IMPORTANT: Only perform one action, clear the owner_status belief (because we don't know if waking up worked),
-// and wait for the next owner_status update by the wristband_manager.
-// If then the owner_status is still asleep, start the wake up routine again.
+// IMPORTANT: Only perform one action, clear the owner_state belief (because we don't know if waking up worked),
+// and wait for the next owner_state update by the wristband_manager.
+// If then the owner_state is still asleep, start the wake up routine again.
 @check_cfp_proposals_plan
 +!check_cfp_proposals : true <-
     .count(propose(Action)[source(Sender)], X);
@@ -88,18 +82,20 @@ best_option(Number) :- Number = 0.
         -+action_performed(false);
         while (counter(Counter) & Counter < L) {
             .nth(Counter, ListOfProposals, [Action, Sender]);
-            if (action_performed(false) & Action = turn_on_lights & artificial_light(Number) & best_option(Number)) {
+            if (action_performed(Performed) & Performed = false & Action = turn_on_lights & artificial_light(Number) & best_option(Number)) {
                 .print(Action, " is the best option");
                 -+natural_light(0);
                 -+artificial_light(1);
                 .send(Sender, tell, acceptProposal(Action));
                 -+action_performed(true);
-            } elif (action_performed(false) & Action = raise_blinds & natural_light(Number) & best_option(Number)) {
+                .abolish(owner_state(_));
+            } elif (action_performed(Performed) & Performed = false & Action = raise_blinds & natural_light(Number) & best_option(Number)) {
                 .print(Action, " is the best option");
                 -+natural_light(1);
                 -+artificial_light(0);
                 .send(Sender, tell, acceptProposal(Action));
                 -+action_performed(true);
+                .abolish(owner_state(_));
             } else {
                 .print(Action, " is NOT the best option");
                 .send(Sender, tell, rejectProposal(Action));
