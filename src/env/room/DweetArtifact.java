@@ -17,17 +17,16 @@ import java.net.http.HttpResponse;
  */
 public class DweetArtifact extends Artifact {
 
-   int count = 0;
-
    public void init() {
    }
 
    @OPERATION
-   public void sendDweet(String goal) {
+   public void sendDweet(String action, String receiver, String performative, String content) {
       try {
          URI uri = new URI("https://dweet.io/dweet/for/jonas-exercise6");
 
-         String payload = "{\"goal\":\"" + goal + "\"}";
+         String payload = "{ \"action\": \"" + action + "\", \"receiver\": \"" + receiver + "\", \"performative\": \""
+               + performative + "\", \"content\": \"" + content + "\" }";
 
          HttpRequest request = HttpRequest.newBuilder()
                .uri(uri)

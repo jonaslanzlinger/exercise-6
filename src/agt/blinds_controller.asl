@@ -42,7 +42,7 @@ blinds("lowered").
 
 // If the proposal to raise the blinds is refused, a message is printed.
 @refuseProposal_raise_blinds_plan
-+refuseProposal(raise_blinds)[source(Sender)] : true <-
++rejectProposal(raise_blinds)[source(Sender)] : true <-
     .print("Proposal to raise the blinds refused by ", Sender).
 
 { include("$jacamoJar/templates/common-cartago.asl") }

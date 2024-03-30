@@ -16,8 +16,8 @@ best_option(Number) :- Number = 0.
     .print("Dweet artifact created").
 
 @sendDweet_plan
-+!sendDweet(Message) : true <-
-    sendDweet(Message).
++!sendDweet(Action, Receiver, Performative, Content) : true <-
+    sendDweet(Action, Receiver, Performative, Content).
 
 @upcoming_event_now_asleep_plan
 +upcoming_event("now") : owner_state("asleep") <-
@@ -104,7 +104,7 @@ best_option(Number) :- Number = 0.
         }
     } else {
         .print("No proposals received. Sending goal to friends via Dweet.io...");
-        sendDweet("!help_me_to_wake_up");
+        sendDweet(send, "alice, bob, eve", achieve, help_friend_to_wake_up(jonas));
     }.
 
 // fipa contract net protocol.

@@ -42,7 +42,7 @@ lights("off").
 
 // If the proposal to turn on the lights is refused, a message is printed.
 @refuseProposal_increase_illuminance_plan
-+refuseProposal(turn_on_lights)[source(Sender)] : true <-
++rejectProposal(turn_on_lights)[source(Sender)] : true <-
     .print("Proposal to turn on lights refused by ", Sender).
 
 { include("$jacamoJar/templates/common-cartago.asl") }
