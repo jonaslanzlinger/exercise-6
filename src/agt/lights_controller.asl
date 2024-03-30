@@ -23,6 +23,9 @@ lights("off").
     .print("Lights turned off");
     .send(personal_assistant, tell, lights("off")).
 
+// This plan reacts to the call for proposal to increase the illuminance.
+// If the lights are off, it proposes to turn them on.
+// Otherwise, it refuses the proposal.
 @cfp_increase_illuminance_plan
 +!cfp(increase_illuminance)[source(Sender)] : true <-
     if (lights("off")) {
@@ -31,11 +34,13 @@ lights("off").
         .send(Sender, tell, refuse(increase_illuminance));
     }.
 
+// If the proposal to turn on the lights is accepted, the lights get turned on.
 @acceptProposal_increase_illuminance_plan
 +acceptProposal(turn_on_lights)[source(Sender)] : true <-
     !turn_on_lights;
     .send(Sender, tell, informDone(turn_on_lights)).
 
+// If the proposal to turn on the lights is refused, a message is printed.
 @refuseProposal_increase_illuminance_plan
 +refuseProposal(turn_on_lights)[source(Sender)] : true <-
     .print("Proposal to turn on lights refused by ", Sender).

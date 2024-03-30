@@ -8,7 +8,6 @@ upcoming_event(_).
 +!start : td("https://was-course.interactions.ics.unisg.ch/wake-up-ontology#CalendarService", Url) <-
     .print("Hello world");
     makeArtifact("calendarService", "org.hyperagents.jacamo.artifacts.wot.ThingArtifact", [Url], ArtId);
-    .wait(5000);
     !read_upcoming_event.
 
 @read_upcoming_event_plan
@@ -24,6 +23,9 @@ upcoming_event(_).
     .print("Upcoming event: ", UpcomingEvent);
     .send(personal_assistant, tell, upcoming_event(UpcomingEvent)).
 
+// This plan reacts to the call for proposal to increase the illuminance.
+// It sends a refuse message to the sender because
+// the calendar manager cannot increase the illuminance.
 @cfp_increase_illuminance_plan
 +!cfp(increase_illuminance)[source(Sender)] : true <-
     .send(Sender, tell, refuse(increase_illuminance)).
